@@ -38,10 +38,12 @@ public class CurrencyService {
         List<Rates> ratesList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
+         // reset all the values if present earlier as we want to store only for last 30days
+        currencyDataRepository.deleteAll();
+        
         int times = 30;
 
         // looping for 30 api calls decrementing one-one day
-
         while (times -- > 0) {
             // building url
             String url = "https://api.apilayer.com/fixer/";
@@ -118,8 +120,8 @@ public class CurrencyService {
         String currencyCode = predictionEntryDto.getCurrency();
 
         // building function name to get invoke
-        String s = "get";
-        s += currencyCode.substring(0,1).toLowerCase() + currencyCode.substring(1);
+        String fun = "get";
+        fun += currencyCode.substring(0,1).toLowerCase() + currencyCode.substring(1);
 
         double sum = 0;
         PredictionRepsonseDto dto = new PredictionRepsonseDto();
@@ -127,7 +129,7 @@ public class CurrencyService {
         for(CurrencyData currencyData : currencyDataList) {
             // mapping string to function name
             Rates rates = currencyData.getRate();
-            java.lang.reflect.Method method = rates.getClass().getMethod(s);
+            java.lang.reflect.Method method = rates.getClass().getMethod(fun);
             sum += (double) method.invoke(rates);
 
             // if the date equals to the known date return its values
